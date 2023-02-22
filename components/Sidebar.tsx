@@ -18,20 +18,17 @@ const navData = [
   { name: "Transactions", link: "/transactions", icon: "attach_money" },
 ];
 
-export default function Sidebar() {
-  return (
-    <Box component="nav">
-      <Drawer
-        variant="permanent"
-        anchor="left"
-        sx={{
-          textAlign: "center",
-          width: 240,
-          "& .MuiDrawer-paper": {
-            width: 240,
-          },
-        }}
-      >
+type Props = {
+  mobileOpen: boolean;
+  setMobileOpen: (state: boolean) => void;
+};
+
+export default function Sidebar({ mobileOpen, setMobileOpen }: Props) {
+  const drawerWidth = 240;
+
+  const drawerContent = (
+    <>
+      <Link href="/">
         <Box
           display="flex"
           flexDirection="row"
@@ -43,20 +40,52 @@ export default function Sidebar() {
             LOGO
           </Typography>
         </Box>
-        <List disablePadding>
-          {navData.map((item) => (
-            <ListItem key={item.name} disablePadding>
-              <Link href={item.link}>
-                <ListItemButton>
-                  <ListItemIcon>
-                    <Icon>{item.icon}</Icon>
-                  </ListItemIcon>
-                  <ListItemText primary={item.name} />
-                </ListItemButton>
-              </Link>
-            </ListItem>
-          ))}
-        </List>
+      </Link>
+      <List disablePadding>
+        {navData.map((item) => (
+          <ListItem key={item.name} disablePadding>
+            <Link href={item.link}>
+              <ListItemButton>
+                <ListItemIcon>
+                  <Icon>{item.icon}</Icon>
+                </ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+        ))}
+      </List>
+    </>
+  );
+
+  return (
+    <Box component="nav">
+      {/* desktop drawer */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+          },
+          display: { xs: "none", md: "block" },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+      {/* mobile drawer */}
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        sx={{
+          width: drawerWidth,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+          },
+        }}
+      >
+        {drawerContent}
       </Drawer>
     </Box>
   );

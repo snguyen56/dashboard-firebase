@@ -38,6 +38,17 @@ export function ThemeContextProvider({ children }: Props) {
           },
         },
       },
+      MuiButton: {
+        styleOverrides: {
+          // contained: {
+          //   backgroundColor: "#6f42c1",
+          //   color: darkMode ? "#fff" : "#212121",
+          //   "&:hover": {
+          //     backgroundColor: "#9472D4",
+          //   },
+          // },
+        },
+      },
     },
   });
 

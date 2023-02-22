@@ -1,13 +1,16 @@
 import { AppBar, Box, Toolbar, Avatar, IconButton } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
-import React from "react";
+import MenuIcon from "@mui/icons-material/Menu";
 import Sidebar from "./Sidebar";
+import { useState } from "react";
 
 type Props = {
   children: React.ReactNode;
 };
 
 export default function Layout({ children }: Props) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <Box display="flex" minHeight="100vh">
       <header>
@@ -25,10 +28,17 @@ export default function Layout({ children }: Props) {
               <SettingsIcon fontSize="large" />
             </IconButton>
             <Avatar alt="Profile Image" />
+            <IconButton
+              aria-label="menu"
+              sx={{ marginLeft: 2, display: { xs: "block", md: "none" } }}
+              onClick={() => setMobileOpen(true)}
+            >
+              <MenuIcon fontSize="large" />
+            </IconButton>
           </Toolbar>
         </AppBar>
         <aside>
-          <Sidebar />
+          <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
         </aside>
       </header>
       <main>
