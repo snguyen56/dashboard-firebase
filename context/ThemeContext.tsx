@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useMemo } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 type Props = {
@@ -8,11 +8,23 @@ type Props = {
 type ThemeContextValue = {
   darkMode: boolean;
   toggleTheme: () => void;
+  primaryColor: string;
+  setPrimaryColor: (color: string) => void;
+  fontSize: number;
+  setFontSize: (size: number) => void;
+  borderRadius: number;
+  setBorderRadius: (radius: number) => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue>({
   darkMode: false,
   toggleTheme: () => {},
+  primaryColor: "#673ab7",
+  setPrimaryColor: () => {},
+  fontSize: 14,
+  setFontSize: () => {},
+  borderRadius: 4,
+  setBorderRadius: () => {},
 });
 
 export function useThemeContext() {
@@ -21,39 +33,57 @@ export function useThemeContext() {
 
 export function ThemeContextProvider({ children }: Props) {
   const [darkMode, setDarkMode] = useState<boolean>(true);
+  const [primaryColor, setPrimaryColor] = useState<string>("#673ab7");
+  const [fontSize, setFontSize] = useState<number>(14);
+  const [borderRadius, setBorderRadius] = useState<number>(4);
+
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: "dark",
+          primary: {
+            main: primaryColor,
+          },
+        },
+        typography: {
+          fontSize: fontSize,
+        },
+        shape: {
+          borderRadius: borderRadius,
+        },
+        components: {
+          MuiDrawer: {
+            styleOverrides: {
+              paper: {
+                // backgroundColor: darkMode ? "#212121" : "#fff",
+                backgroundImage:
+                  "linear-gradient(rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.09))",
+              },
+            },
+          },
+        },
+      }),
+    [darkMode, primaryColor, fontSize, borderRadius]
+  );
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
   };
 
-  const theme = createTheme({
-    palette: {
-      mode: darkMode ? "dark" : "light",
-    },
-    components: {
-      MuiDrawer: {
-        styleOverrides: {
-          paper: {
-            backgroundColor: darkMode ? "#212121" : "#fff",
-          },
-        },
-      },
-      MuiButton: {
-        styleOverrides: {
-          // contained: {
-          //   backgroundColor: "#6f42c1",
-          //   color: darkMode ? "#fff" : "#212121",
-          //   "&:hover": {
-          //     backgroundColor: "#9472D4",
-          //   },
-          // },
-        },
-      },
-    },
-  });
-
   return (
-    <ThemeContext.Provider value={{ darkMode, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{
+        darkMode,
+        toggleTheme,
+        primaryColor,
+        setPrimaryColor,
+        fontSize,
+        setFontSize,
+        borderRadius,
+        setBorderRadius,
+      }}
+    >
       <ThemeProvider theme={theme}>{children}</ThemeProvider>
     </ThemeContext.Provider>
   );

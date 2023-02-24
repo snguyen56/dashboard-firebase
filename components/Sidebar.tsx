@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import Icon from "@mui/material/Icon";
 import Link from "next/link";
+import { useState } from "react";
 
 const navData = [
   { name: "Dashboard", link: "/", icon: "dashboard" },
@@ -25,6 +26,15 @@ type Props = {
 
 export default function Sidebar({ mobileOpen, setMobileOpen }: Props) {
   const drawerWidth = 240;
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const handleListItemClick = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    index: number
+  ) => {
+    setSelectedIndex(index);
+  };
 
   const drawerContent = (
     <>
@@ -42,12 +52,17 @@ export default function Sidebar({ mobileOpen, setMobileOpen }: Props) {
         </Box>
       </Link>
       <List disablePadding>
-        {navData.map((item) => (
+        {navData.map((item, index) => (
           <ListItem key={item.name} disablePadding>
             <Link href={item.link}>
-              <ListItemButton>
+              <ListItemButton
+                selected={selectedIndex === index}
+                onClick={(event) => handleListItemClick(event, index)}
+              >
                 <ListItemIcon>
-                  <Icon>{item.icon}</Icon>
+                  <Icon color={index === selectedIndex ? "primary" : "inherit"}>
+                    {item.icon}
+                  </Icon>
                 </ListItemIcon>
                 <ListItemText primary={item.name} />
               </ListItemButton>
@@ -67,6 +82,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }: Props) {
           width: drawerWidth,
           "& .MuiDrawer-paper": {
             width: drawerWidth,
+            border: "none",
           },
           display: { xs: "none", md: "block" },
         }}

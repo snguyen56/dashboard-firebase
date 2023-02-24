@@ -16,7 +16,6 @@ type Props = {
 };
 
 export default function products({ data }: Props) {
-  console.log(data);
   const columns: GridColDef[] = [
     { field: "Name", flex: 1 },
     { field: "Price", flex: 0.75 },
@@ -33,7 +32,6 @@ export default function products({ data }: Props) {
     Cost: currencyFormatter(
       product.price * ((100 - product.discountPercentage) * 0.01)
     ),
-
     Stock: product.stock,
     Category: product.category,
     Supplier: product.brand,
