@@ -2,12 +2,13 @@ import { Box, Toolbar } from "@mui/material";
 import Sidebar from "./Sidebar";
 import { useState } from "react";
 import Topbar from "./Topbar";
-
+import { useAuth } from "@/context/AuthContext";
 type Props = {
   children: React.ReactNode;
 };
 
 export default function Layout({ children }: Props) {
+  const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -15,7 +16,9 @@ export default function Layout({ children }: Props) {
       <header>
         <Topbar setMobileOpen={setMobileOpen} />
         <aside>
-          <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+          {user ? (
+            <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+          ) : null}
         </aside>
       </header>
       <main>

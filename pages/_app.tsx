@@ -7,6 +7,7 @@ import { CacheProvider, EmotionCache } from "@emotion/react";
 import createEmotionCache from "../lib/createEmotionCache";
 import Layout from "@/components/Layout";
 import { ThemeContextProvider } from "@/context/ThemeContext";
+import { AuthContextProvider } from "@/context/AuthContext";
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
@@ -22,10 +23,12 @@ export default function MyApp(props: MyAppProps) {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <ThemeContextProvider>
-        <CssBaseline />
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <AuthContextProvider>
+          <CssBaseline />
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </AuthContextProvider>
       </ThemeContextProvider>
     </CacheProvider>
   );

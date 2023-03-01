@@ -12,6 +12,7 @@ import {
   Chip,
   Slider,
   ListItemIcon,
+  Button,
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
@@ -20,12 +21,17 @@ import PersonIcon from "@mui/icons-material/Person";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState } from "react";
 import { useThemeContext } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 type Props = {
   setMobileOpen: (state: boolean) => void;
 };
 
 export default function Topbar({ setMobileOpen }: Props) {
+  const router = useRouter();
+
   const {
     primaryColor,
     setPrimaryColor,
@@ -34,6 +40,8 @@ export default function Topbar({ setMobileOpen }: Props) {
     borderRadius,
     setBorderRadius,
   } = useThemeContext();
+
+  const { user, logout } = useAuth();
 
   const [settingsAnchorEl, setSettingsAnchorEl] = useState<null | HTMLElement>(
     null
@@ -62,6 +70,11 @@ export default function Topbar({ setMobileOpen }: Props) {
     if (typeof newValue === "number") {
       setBorderRadius(newValue);
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
   };
 
   return (
@@ -187,60 +200,69 @@ export default function Topbar({ setMobileOpen }: Props) {
           </Box>
         </Menu>
         {/* Profile Menu */}
-        <IconButton
-          onClick={handleProfileClick}
-          size="small"
-          sx={{ ml: 2 }}
-          aria-controls={profileOpen ? "account-menu" : undefined}
-          aria-haspopup="true"
-          aria-expanded={profileOpen ? "true" : undefined}
-        >
-          <Avatar alt="Profile Image" sx={{ bgcolor: primaryColor }} />
-        </IconButton>
-        <Menu
-          anchorEl={profileAnchorEl}
-          id="account-menu"
-          open={profileOpen}
-          onClose={handleProfileClose}
-          onClick={handleProfileClose}
-          transformOrigin={{ horizontal: "right", vertical: "top" }}
-          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        >
-          <Typography
-            sx={{ padding: "6px 16px" }}
-            variant="h6"
-            component="span"
-          >
-            Username
-          </Typography>
-          <Typography
-            sx={{ padding: "6px 16px" }}
-            variant="subtitle1"
-            component="p"
-          >
-            username@email.com
-          </Typography>
-          <Divider sx={{ my: 1 }} />
-          <MenuItem onClick={handleProfileClose}>
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            My Profile
-          </MenuItem>
-          <MenuItem onClick={handleProfileClose}>
-            <ListItemIcon>
-              <EditIcon />
-            </ListItemIcon>
-            Edit account
-          </MenuItem>
-          <Divider />
-          <MenuItem onClick={handleProfileClose}>
-            <ListItemIcon>
-              <Logout />
-            </ListItemIcon>
-            Logout
-          </MenuItem>
-        </Menu>
+        {user ? (
+          <>
+            <IconButton
+              onClick={handleProfileClick}
+              size="small"
+              sx={{ ml: 2 }}
+              aria-controls={profileOpen ? "account-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={profileOpen ? "true" : undefined}
+            >
+              <Avatar alt="Profile Image" sx={{ bgcolor: primaryColor }} />
+            </IconButton>
+            <Menu
+              anchorEl={profileAnchorEl}
+              id="account-menu"
+              open={profileOpen}
+              onClose={handleProfileClose}
+              onClick={handleProfileClose}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+            >
+              <Typography
+                sx={{ padding: "6px 16px" }}
+                variant="h6"
+                component="span"
+              >
+                {user.displayName ? user.displayName : "undefined"}
+              </Typography>
+              <Typography
+                sx={{ padding: "6px 16px" }}
+                variant="subtitle1"
+                component="p"
+              >
+                {user.email}
+              </Typography>
+              <Divider sx={{ my: 1 }} />
+              <MenuItem onClick={handleProfileClose}>
+                <ListItemIcon>
+                  <PersonIcon />
+                </ListItemIcon>
+                My Profile
+              </MenuItem>
+              <MenuItem onClick={handleProfileClose}>
+                <ListItemIcon>
+                  <EditIcon />
+                </ListItemIcon>
+                Edit account
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon>
+                  <Logout />
+                </ListItemIcon>
+                Logout
+              </MenuItem>
+            </Menu>
+          </>
+        ) : (
+          <>
+            <Button variant="text">Login</Button>
+            <Button variant="contained">Signup</Button>
+          </>
+        )}
 
         <IconButton
           aria-label="nav-menu"
