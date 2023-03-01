@@ -17,12 +17,12 @@ type Props = {
 
 export default function products({ data }: Props) {
   const columns: GridColDef[] = [
-    { field: "Name", flex: 1 },
-    { field: "Price", flex: 0.75 },
-    { field: "Cost", flex: 0.75 },
-    { field: "Stock", flex: 0.75 },
-    { field: "Category", flex: 1 },
-    { field: "Supplier", flex: 1 },
+    { field: "Name", flex: 1, minWidth: 125 },
+    { field: "Price", flex: 0.75, minWidth: 75 },
+    { field: "Cost", flex: 0.75, minWidth: 75 },
+    { field: "Stock", flex: 0.75, minWidth: 75 },
+    { field: "Category", flex: 1, minWidth: 125 },
+    { field: "Supplier", flex: 1, minWidth: 125 },
   ];
 
   const mockRows: GridRowsProp = data.map((product: any, index: number) => ({

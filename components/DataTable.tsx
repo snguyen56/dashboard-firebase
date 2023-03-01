@@ -17,7 +17,7 @@ type Props = { header: string; rows: GridRowsProp; columns: GridColDef[] };
 
 export default function DataTable({ header, rows, columns }: Props) {
   return (
-    <Container style={{ height: 550, width: "80vw" }} maxWidth={false}>
+    <Container style={{ height: 550 }} maxWidth={"xl"}>
       <Stack direction="row" justifyContent="space-between">
         <Typography variant="h4" component="h1" pb={2}>
           {header}

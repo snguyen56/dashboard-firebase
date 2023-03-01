@@ -14,6 +14,7 @@ import {
 } from "@mui/x-data-grid";
 import { GetServerSideProps } from "next";
 import { currencyFormatter } from "@/lib/numberFormatter";
+import Link from "next/link";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const res = await fetch("https://dummyjson.com/users?limit=100");
@@ -48,7 +49,9 @@ export default function customers({ data }: any) {
           Customers
         </Typography>
         <Box>
-          <Button variant="contained">Add Customer</Button>
+          <Link href="/customers/create">
+            <Button variant="contained">Add Customer</Button>
+          </Link>
         </Box>
       </Stack>
       <Paper sx={{ height: "inherit", width: "100%" }}>

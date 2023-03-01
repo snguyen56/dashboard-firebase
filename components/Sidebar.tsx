@@ -11,6 +11,7 @@ import {
 import Icon from "@mui/material/Icon";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 const navData = [
   { name: "Dashboard", link: "/", icon: "dashboard" },
@@ -25,15 +26,17 @@ type Props = {
 };
 
 export default function Sidebar({ mobileOpen, setMobileOpen }: Props) {
+  const router = useRouter();
+
   const drawerWidth = 240;
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(router.asPath);
 
   const handleListItemClick = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    index: number
+    link: string
   ) => {
-    setSelectedIndex(index);
+    setSelectedIndex(link);
   };
 
   const drawerContent = (
@@ -52,15 +55,17 @@ export default function Sidebar({ mobileOpen, setMobileOpen }: Props) {
         </Box>
       </Link>
       <List disablePadding>
-        {navData.map((item, index) => (
+        {navData.map((item) => (
           <ListItem key={item.name} disablePadding>
             <Link href={item.link}>
               <ListItemButton
-                selected={selectedIndex === index}
-                onClick={(event) => handleListItemClick(event, index)}
+                selected={selectedIndex === item.link}
+                onClick={(event) => handleListItemClick(event, item.link)}
               >
                 <ListItemIcon>
-                  <Icon color={index === selectedIndex ? "primary" : "inherit"}>
+                  <Icon
+                    color={item.link === selectedIndex ? "primary" : "inherit"}
+                  >
                     {item.icon}
                   </Icon>
                 </ListItemIcon>
