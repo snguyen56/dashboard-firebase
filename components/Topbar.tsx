@@ -1,6 +1,5 @@
 import {
   AppBar,
-  Box,
   Toolbar,
   Avatar,
   IconButton,
@@ -8,13 +7,9 @@ import {
   MenuItem,
   Typography,
   Divider,
-  Stack,
-  Chip,
-  Slider,
   ListItemIcon,
   Button,
 } from "@mui/material";
-import SettingsIcon from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
@@ -24,6 +19,7 @@ import { useThemeContext } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import SettingsMenu from "./SettingsMenu";
 
 type Props = {
   setMobileOpen: (state: boolean) => void;
@@ -32,31 +28,13 @@ type Props = {
 export default function Topbar({ setMobileOpen }: Props) {
   const router = useRouter();
 
-  const {
-    primaryColor,
-    setPrimaryColor,
-    fontSize,
-    setFontSize,
-    borderRadius,
-    setBorderRadius,
-  } = useThemeContext();
+  const { primaryColor } = useThemeContext();
 
   const { user, logout } = useAuth();
 
-  const [settingsAnchorEl, setSettingsAnchorEl] = useState<null | HTMLElement>(
-    null
-  );
   const [profileAnchorEl, setProfileAnchorEl] = useState<null | HTMLElement>(
     null
   );
-
-  const settingsOpen = Boolean(settingsAnchorEl);
-  const handleSettingsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setSettingsAnchorEl(event.currentTarget);
-  };
-  const handleSettingsClose = () => {
-    setSettingsAnchorEl(null);
-  };
 
   const profileOpen = Boolean(profileAnchorEl);
   const handleProfileClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -64,12 +42,6 @@ export default function Topbar({ setMobileOpen }: Props) {
   };
   const handleProfileClose = () => {
     setProfileAnchorEl(null);
-  };
-
-  const handleSlider = (event: Event, newValue: number | number[]) => {
-    if (typeof newValue === "number") {
-      setBorderRadius(newValue);
-    }
   };
 
   const handleLogout = () => {
@@ -88,117 +60,7 @@ export default function Topbar({ setMobileOpen }: Props) {
           width: { xs: "100%", md: `calc(100% - 240px)` },
         }}
       >
-        {/* Settings menu */}
-        <IconButton
-          id="settings-button"
-          aria-controls={settingsOpen ? "settings-menu" : undefined}
-          aria-haspopup="true"
-          aria-expanded={settingsOpen ? "true" : undefined}
-          aria-label="settings"
-          onClick={handleSettingsClick}
-        >
-          <SettingsIcon fontSize="large" />
-        </IconButton>
-        <Menu
-          id="settings-menu"
-          anchorEl={settingsAnchorEl}
-          open={settingsOpen}
-          onClose={handleSettingsClose}
-          MenuListProps={{
-            "aria-labelledby": "settings-button",
-          }}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "center",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-        >
-          <Typography sx={{ padding: "6px 16px" }}>Theme Color</Typography>
-          <Stack direction={"row"} spacing={1} px={1}>
-            <Chip
-              label="Purple"
-              variant="outlined"
-              onClick={() => setPrimaryColor("#673ab7")}
-              avatar={<Avatar sx={{ bgcolor: "#673ab7" }}>P</Avatar>}
-              sx={{
-                border:
-                  primaryColor === "#673ab7"
-                    ? "2px solid #673ab7"
-                    : "1px solid #616161",
-              }}
-            />
-            <Chip
-              label="Green"
-              variant="outlined"
-              onClick={() => setPrimaryColor("#4caf50")}
-              avatar={<Avatar sx={{ bgcolor: "#4caf50" }}>G</Avatar>}
-              sx={{
-                border:
-                  primaryColor === "#4caf50"
-                    ? "2px solid #4caf50"
-                    : "1px solid #616161",
-              }}
-            />
-            <Chip
-              label="Blue"
-              variant="outlined"
-              onClick={() => setPrimaryColor("#2196f3")}
-              avatar={<Avatar sx={{ bgcolor: "#2196f3" }}>B</Avatar>}
-              sx={{
-                border:
-                  primaryColor === "#2196f3"
-                    ? "2px solid #2196f3"
-                    : "1px solid #616161",
-              }}
-            />
-          </Stack>
-          <Divider sx={{ margin: "8px 0" }} />
-          <Typography sx={{ padding: "6px 16px" }}>Font Size</Typography>
-          <Stack direction="row" justifyContent="center" spacing={1} px={1}>
-            <Chip
-              label="Small"
-              variant="outlined"
-              onClick={() => setFontSize(12)}
-              sx={{
-                border:
-                  fontSize === 12 ? "2px solid white" : "1px solid #616161",
-              }}
-            />
-            <Chip
-              label="Medium"
-              variant="outlined"
-              onClick={() => setFontSize(14)}
-              sx={{
-                border:
-                  fontSize === 14 ? "2px solid white" : "1px solid #616161",
-              }}
-            />
-            <Chip
-              label="Large"
-              variant="outlined"
-              onClick={() => setFontSize(16)}
-              sx={{
-                border:
-                  fontSize === 16 ? "2px solid white" : "1px solid #616161",
-              }}
-            />
-          </Stack>
-          <Divider sx={{ margin: "8px 0" }} />
-          <Typography sx={{ padding: "6px 16px" }}>Border Radius</Typography>
-          <Box mx={5} width="200px">
-            <Slider
-              value={borderRadius}
-              min={0}
-              max={20}
-              defaultValue={4}
-              valueLabelDisplay="auto"
-              onChange={handleSlider}
-            />
-          </Box>
-        </Menu>
+        <SettingsMenu />
         {/* Profile Menu */}
         {user ? (
           <>
@@ -226,7 +88,7 @@ export default function Topbar({ setMobileOpen }: Props) {
                 variant="h6"
                 component="span"
               >
-                {user.displayName ? user.displayName : "undefined"}
+                {user.displayName ? user.displayName : "Not Found"}
               </Typography>
               <Typography
                 sx={{ padding: "6px 16px" }}
@@ -259,8 +121,14 @@ export default function Topbar({ setMobileOpen }: Props) {
           </>
         ) : (
           <>
-            <Button variant="text">Login</Button>
-            <Button variant="contained">Signup</Button>
+            <Link href="/login">
+              <Button variant="text" sx={{ ml: 2 }}>
+                Login
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button variant="contained">Signup</Button>
+            </Link>
           </>
         )}
 

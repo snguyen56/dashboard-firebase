@@ -9,10 +9,11 @@ import {
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function login() {
   const router = useRouter();
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState("test@test.com");
   const [password, setPassword] = useState("123123");
 
@@ -37,7 +38,6 @@ export default function login() {
           <Typography variant="h3" component="h1">
             Log In
           </Typography>
-          {user?.email}
           <TextField
             label="Email"
             type="email"
@@ -56,7 +56,7 @@ export default function login() {
         </Box>
       </Paper>
       <Typography textAlign="center">
-        Don't have an account? Signup here
+        Don't have an account? <Link href="/signup">Signup here</Link>
       </Typography>
     </Container>
   );

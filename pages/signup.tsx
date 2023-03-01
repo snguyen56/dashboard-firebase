@@ -8,13 +8,12 @@ import {
 } from "@mui/material";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-
+import Link from "next/link";
 export default function signup() {
-  const { signup, user } = useAuth();
+  const { signup } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  console.log(user);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -61,7 +60,7 @@ export default function signup() {
         </Box>
       </Paper>
       <Typography textAlign="center">
-        Already have an account? Login here
+        Already have an account? <Link href="/login">Login here</Link>
       </Typography>
     </Container>
   );
