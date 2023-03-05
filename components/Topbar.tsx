@@ -57,7 +57,7 @@ export default function Topbar({ setMobileOpen }: Props) {
           flexDirection: "row",
           justifyContent: "end",
           marginLeft: "auto",
-          width: { xs: "100%", md: `calc(100% - 240px)` },
+          // width: { xs: "100%", md: `calc(100% - 240px)` },
         }}
       >
         <SettingsMenu />
@@ -118,6 +118,13 @@ export default function Topbar({ setMobileOpen }: Props) {
                 Logout
               </MenuItem>
             </Menu>
+            <IconButton
+              aria-label="nav-menu"
+              sx={{ marginLeft: 2, display: { xs: "inline-flex", md: "none" } }}
+              onClick={() => setMobileOpen(true)}
+            >
+              <MenuIcon fontSize="large" />
+            </IconButton>
           </>
         ) : (
           <>
@@ -131,14 +138,6 @@ export default function Topbar({ setMobileOpen }: Props) {
             </Link>
           </>
         )}
-
-        <IconButton
-          aria-label="nav-menu"
-          sx={{ marginLeft: 2, display: { xs: "inline-flex", md: "none" } }}
-          onClick={() => setMobileOpen(true)}
-        >
-          <MenuIcon fontSize="large" />
-        </IconButton>
       </Toolbar>
     </AppBar>
   );

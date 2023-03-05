@@ -10,7 +10,7 @@ li a {
   width: 100%;
 }
 
-a {
+div > a {
   color: inherit;
   text-decoration: none;
 }

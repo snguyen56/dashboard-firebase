@@ -6,22 +6,35 @@ import {
   Button,
   Box,
 } from "@mui/material";
-import { FormEvent, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+
+type Inputs = {
+  Email: string;
+  Password: string;
+};
 
 export default function login() {
   const router = useRouter();
   const { login } = useAuth();
-  const [email, setEmail] = useState("test@test.com");
-  const [password, setPassword] = useState("123123");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>();
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    login(email, password);
+  function onSubmit<Inputs>(data: Inputs) {
+    console.log(data);
+    login(data.Email, data.Password);
     router.push("/");
   }
+
+  function handleErrors(errors: Object) {
+    console.log(errors);
+  }
+
   return (
     <Container maxWidth="sm">
       <Paper sx={{ p: 3, mb: 2 }}>
@@ -31,24 +44,36 @@ export default function login() {
           textAlign="center"
           justifyContent="space-between"
           height={350}
-          maxHeight="100vh"
           component="form"
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit, handleErrors)}
         >
           <Typography variant="h3" component="h1">
             Log In
           </Typography>
           <TextField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register("Email", {
+              required: "Email is required",
+              value: "test@test.com",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                message: "Invalid email address",
+              },
+            })}
+            error={!!errors.Email}
+            helperText={errors.Email?.message}
           />
           <TextField
-            label="Password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register("Password", {
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password must be at least 6 characters",
+              },
+              value: "123123",
+            })}
+            error={!!errors.Password}
+            helperText={errors.Password?.message}
           />
           <Button variant="contained" type="submit">
             Log In
