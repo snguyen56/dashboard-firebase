@@ -2,6 +2,10 @@ import DataTable from "@/components/DataTable";
 import { GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import { GetServerSideProps } from "next";
 import { currencyFormatter } from "@/lib/numberFormatter";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/lib/firebaseConfig";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const res = await fetch("https://dummyjson.com/products?limit=100");
@@ -16,13 +20,17 @@ type Props = {
 };
 
 export default function products({ data }: Props) {
+  const [rows, setRows] = useState<any>([]);
+
+  const { user } = useAuth();
+
   const columns: GridColDef[] = [
-    { field: "Name", flex: 1, minWidth: 125 },
-    { field: "Price", flex: 0.75, minWidth: 75 },
-    { field: "Cost", flex: 0.75, minWidth: 75 },
-    { field: "Stock", flex: 0.75, minWidth: 75 },
-    { field: "Category", flex: 1, minWidth: 125 },
-    { field: "Supplier", flex: 1, minWidth: 125 },
+    { field: "name", headerName: "Name", flex: 1, minWidth: 125 },
+    { field: "price", flex: 0.75, minWidth: 75 },
+    { field: "cost", flex: 0.75, minWidth: 75 },
+    { field: "stock", flex: 0.75, minWidth: 75 },
+    { field: "category", flex: 1, minWidth: 125 },
+    { field: "supplier", flex: 1, minWidth: 125 },
   ];
 
   const mockRows: GridRowsProp = data.map((product: any, index: number) => ({
@@ -37,5 +45,26 @@ export default function products({ data }: Props) {
     Supplier: product.brand,
   }));
 
-  return <DataTable header="Products" rows={mockRows} columns={columns} />;
+  useEffect(() => {
+    const getData = async () => {
+      const col = collection(db, "products");
+      // const data = await getDocs(col);
+      const q = await query(col, where("userId", "==", user?.uid));
+      const data = await getDocs(q);
+      setRows(
+        data.docs.map((doc) => {
+          return {
+            ...doc.data(),
+            price: currencyFormatter(doc.data().price),
+            cost: currencyFormatter(doc.data().cost),
+            id: doc.id,
+          };
+        })
+      );
+    };
+
+    // getData();
+  }, []);
+
+  return <DataTable header="Products" rows={rows} columns={columns} />;
 }

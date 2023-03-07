@@ -1,5 +1,10 @@
 import Form from "@/components/Form";
-import { TextField, Snackbar, Autocomplete } from "@mui/material";
+import {
+  TextField,
+  Snackbar,
+  Autocomplete,
+  InputAdornment,
+} from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useState, forwardRef } from "react";
 import MuiAlert, { AlertColor, AlertProps } from "@mui/material/Alert";
@@ -66,6 +71,9 @@ export default function create() {
       <TextField
         type="number"
         placeholder="Quantity"
+        InputProps={{
+          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+        }}
         {...register("quantity", {
           required: "Quantity is required",
           min: { value: 0.01, message: "value must be greater than 0" },
@@ -76,6 +84,9 @@ export default function create() {
       <TextField
         type="number"
         placeholder="Cost"
+        InputProps={{
+          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+        }}
         {...register("cost", {
           required: "Cost is required",
           min: { value: 0.01, message: "value must be greater than 0" },

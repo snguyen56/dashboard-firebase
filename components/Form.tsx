@@ -9,7 +9,7 @@ export default function Form({ children, handleSubmit }: Props) {
   return (
     <Container maxWidth="md">
       <Typography variant="h4" component="h1" pb={2}>
-        Create User
+        Create Item
       </Typography>
       <Paper
         component="form"
@@ -25,7 +25,7 @@ export default function Form({ children, handleSubmit }: Props) {
           {children}
         </Box>
         <Button variant="contained" color="primary" type="submit">
-          Create User
+          Create Item
         </Button>
       </Paper>
     </Container>

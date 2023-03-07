@@ -17,12 +17,15 @@ type Props = { header: string; rows: GridRowsProp; columns: GridColDef[] };
 
 export default function DataTable({ header, rows, columns }: Props) {
   return (
-    <Container style={{ height: 550 }} maxWidth={"xl"}>
+    <Container style={{ height: 550, minWidth: 415 }} maxWidth={"xl"}>
       <Stack direction="row" justifyContent="space-between">
         <Typography variant="h4" component="h1" pb={2}>
           {header}
         </Typography>
         <Box>
+          <Button variant="contained" disabled sx={{ mr: 2 }}>
+            Delete Item
+          </Button>
           <Button variant="contained">Add Item</Button>
         </Box>
       </Stack>
