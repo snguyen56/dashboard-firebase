@@ -80,7 +80,7 @@ export default function SettingsMenu() {
             sx={{
               border:
                 primaryColor === "#673ab7"
-                  ? "2px solid #673ab7"
+                  ? `2px solid ${primaryColor}`
                   : "1px solid #616161",
             }}
           />
@@ -92,7 +92,7 @@ export default function SettingsMenu() {
             sx={{
               border:
                 primaryColor === "#4caf50"
-                  ? "2px solid #4caf50"
+                  ? `2px solid ${primaryColor}`
                   : "1px solid #616161",
             }}
           />
@@ -104,7 +104,7 @@ export default function SettingsMenu() {
             sx={{
               border:
                 primaryColor === "#2196f3"
-                  ? "2px solid #2196f3"
+                  ? `2px solid ${primaryColor}`
                   : "1px solid #616161",
             }}
           />
@@ -117,7 +117,10 @@ export default function SettingsMenu() {
             variant="outlined"
             onClick={() => setFontSize(12)}
             sx={{
-              border: fontSize === 12 ? "2px solid white" : "1px solid #616161",
+              border:
+                fontSize === 12
+                  ? `2px solid ${primaryColor}`
+                  : "1px solid #616161",
             }}
           />
           <Chip
@@ -125,7 +128,10 @@ export default function SettingsMenu() {
             variant="outlined"
             onClick={() => setFontSize(14)}
             sx={{
-              border: fontSize === 14 ? "2px solid white" : "1px solid #616161",
+              border:
+                fontSize === 14
+                  ? `2px solid ${primaryColor}`
+                  : "1px solid #616161",
             }}
           />
           <Chip
@@ -133,7 +139,10 @@ export default function SettingsMenu() {
             variant="outlined"
             onClick={() => setFontSize(16)}
             sx={{
-              border: fontSize === 16 ? "2px solid white" : "1px solid #616161",
+              border:
+                fontSize === 16
+                  ? `2px solid ${primaryColor}`
+                  : "1px solid #616161",
             }}
           />
         </Stack>

@@ -25,7 +25,7 @@ export default function signup() {
     watch,
   } = useForm<Inputs>();
 
-  function onSubmit<Inputs>(data: Inputs) {
+  function onSubmit(data: Inputs) {
     signup(data.Email, data.Password);
   }
 

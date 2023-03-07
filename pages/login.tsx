@@ -25,7 +25,7 @@ export default function login() {
     formState: { errors },
   } = useForm<Inputs>();
 
-  function onSubmit<Inputs>(data: Inputs) {
+  function onSubmit(data: Inputs) {
     console.log(data);
     login(data.Email, data.Password);
     router.push("/");
