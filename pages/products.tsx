@@ -2,9 +2,12 @@ import DataTable from "@/components/DataTable";
 import {
   GridRowsProp,
   GridColDef,
-  GridActionsCellItem,
   GridRowId,
-  GridSelectionModel,
+  GridActionsCellItem,
+  GridPreProcessEditCellProps,
+  GridColumns,
+  GridRenderEditCellParams,
+  GridEditInputCell,
 } from "@mui/x-data-grid";
 import { GetServerSideProps } from "next";
 import { currencyFormatter } from "@/lib/numberFormatter";
@@ -21,6 +24,12 @@ import { db } from "@/lib/firebaseConfig";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import {
+  validateString,
+  validateCurrency,
+  validateNumber,
+} from "@/lib/rowValidation";
+import Tooltip from "@mui/material/Tooltip";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const res = await fetch("https://dummyjson.com/products?limit=100");
@@ -36,18 +45,141 @@ type Props = {
 
 export default function products({ data }: Props) {
   const [rows, setRows] = useState<any>([]);
-  const [selectedRows, setSelectedRows] = useState<GridSelectionModel>([]);
 
   const { user } = useAuth();
+  const col = collection(db, "products");
+  const q = query(col, where("userId", "==", user?.uid));
+
+  type Row = typeof mockRows[number];
+
+  function handleEditError(props: GridRenderEditCellParams) {
+    console.log(props);
+    return (
+      <Tooltip title="field cannot be empty" open={props.error}>
+        <GridEditInputCell {...props} />
+      </Tooltip>
+    );
+  }
+
+  const testcolumns: GridColumns<Row> = [
+    {
+      field: "name",
+      headerName: "Name",
+      flex: 1,
+      minWidth: 125,
+      preProcessEditCellProps: validateString,
+      renderEditCell: handleEditError,
+      editable: true,
+    },
+    {
+      field: "price",
+      type: "number",
+      flex: 0.75,
+      minWidth: 75,
+      valueParser: (value: any) => {
+        return value.trim();
+      },
+      valueFormatter: (params) => {
+        return currencyFormatter(params.value);
+      },
+      preProcessEditCellProps: validateCurrency,
+      editable: true,
+    },
+    {
+      field: "cost",
+      type: "number",
+      flex: 0.75,
+      minWidth: 75,
+      valueFormatter: (params) => {
+        return currencyFormatter(params.value);
+      },
+      preProcessEditCellProps: validateCurrency,
+      editable: true,
+    },
+    {
+      field: "stock",
+      type: "number",
+      flex: 0.75,
+      minWidth: 75,
+      preProcessEditCellProps: validateNumber,
+      editable: true,
+    },
+    {
+      field: "category",
+      flex: 1,
+      minWidth: 125,
+      preProcessEditCellProps: validateString,
+      editable: true,
+    },
+    {
+      field: "supplier",
+      flex: 1,
+      minWidth: 125,
+      preProcessEditCellProps: validateString,
+      editable: true,
+    },
+  ];
 
   const columns = useMemo<GridColDef[]>(
     () => [
-      { field: "name", headerName: "Name", flex: 1, minWidth: 125 },
-      { field: "price", flex: 0.75, minWidth: 75 },
-      { field: "cost", flex: 0.75, minWidth: 75 },
-      { field: "stock", flex: 0.75, minWidth: 75 },
-      { field: "category", flex: 1, minWidth: 125 },
-      { field: "supplier", flex: 1, minWidth: 125 },
+      {
+        field: "name",
+        headerName: "Name",
+        flex: 1,
+        minWidth: 125,
+        preProcessEditCellProps: validateString,
+        editable: true,
+      },
+      {
+        field: "price",
+        type: "number",
+        flex: 0.75,
+        minWidth: 75,
+        valueParser: (value: any) => {
+          return value.trim();
+        },
+        valueFormatter: (params) => {
+          return currencyFormatter(params.value);
+        },
+        preProcessEditCellProps: validateCurrency,
+        editable: true,
+      },
+      {
+        field: "cost",
+        type: "number",
+        flex: 0.75,
+        minWidth: 75,
+        valueFormatter: (params) => {
+          return currencyFormatter(params.value);
+        },
+        preProcessEditCellProps: validateCurrency,
+        editable: true,
+      },
+      {
+        field: "stock",
+        type: "number",
+        flex: 0.75,
+        minWidth: 75,
+        preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
+          const hasError = params.props.value < 0;
+          return { ...params.props, error: hasError };
+        },
+        editable: true,
+      },
+      {
+        field: "category",
+        flex: 1,
+        minWidth: 125,
+        preProcessEditCellProps: validateString,
+        editable: true,
+      },
+      {
+        field: "supplier",
+        flex: 1,
+        minWidth: 125,
+        preProcessEditCellProps: validateString,
+        editable: true,
+      },
       {
         field: "actions",
         type: "actions",
@@ -64,76 +196,35 @@ export default function products({ data }: Props) {
     [handleDelete]
   );
 
-  const mockRows: GridRowsProp = data.map((product: any, index: number) => ({
+  const mockRows: GridRowsProp = data.map((product: any, index: GridRowId) => ({
     id: index,
     name: product.title,
-    price: currencyFormatter(product.price),
-    cost: currencyFormatter(
-      product.price * ((100 - product.discountPercentage) * 0.01)
-    ),
+    price: product.price,
+    cost: product.price * ((100 - product.discountPercentage) * 0.01),
     stock: product.stock,
     category: product.category,
     supplier: product.brand,
   }));
 
-  function handleDelete(id: any) {
-    setRows((rows: any) => rows.filter((row: any) => row.id !== id));
-    // deleteDoc(doc(db, "products", id));
-  }
-
-  function handleDeleteMultiple() {
-    // rows.forEach((row: any) => {
-    //   if (selectedRows.includes(row.id)) {
-    //     console.log("delete " + row.name);
-    //     deleteDoc(doc(db, "products", row.id));
-    //   }
-    // });
-
-    setRows((rows: any) =>
-      rows.filter((row: any) => {
-        if (!selectedRows.includes(row.id)) {
-          return true;
-        }
-        // selectedRows.includes(row.id);
-      })
-    );
-  }
-
-  function onRowSelectionModelChange(newRowSelectionModel: any) {
-    setSelectedRows(newRowSelectionModel);
-    console.log(selectedRows);
-  }
+  function handleDelete(id: any) {}
 
   useEffect(() => {
-    const getData = async () => {
-      const col = collection(db, "products");
-      const data = await getDocs(col);
-      // const q = await query(col, where("userId", "==", user?.uid));
-      // const data = await getDocs(q);
-      setRows(
-        data.docs.map((doc) => {
-          return {
-            ...doc.data(),
-            price: currencyFormatter(doc.data().price),
-            cost: currencyFormatter(doc.data().cost),
-            id: doc.id,
-          };
-        })
-      );
-    };
+    // const unsubscribe = onSnapshot(q, (snapshot) => {
+    //   setRows(
+    //     snapshot.docs.map((doc) => {
+    //       return {
+    //         ...doc.data(),
+    //         price: doc.data().price,
+    //         cost: doc.data().cost,
+    //         id: doc.id,
+    //       };
+    //     })
+    //   );
+    // });
 
-    // getData();
+    // return unsubscribe;
     setRows(mockRows);
   }, []);
 
-  return (
-    <DataTable
-      header="Products"
-      rows={rows}
-      columns={columns}
-      onSelectionModelChange={onRowSelectionModelChange}
-      selectionModel={selectedRows}
-      handleDeleteMultiple={handleDeleteMultiple}
-    />
-  );
+  return <DataTable header="Products" rowData={rows} columns={testcolumns} />;
 }
