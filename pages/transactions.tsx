@@ -31,5 +31,7 @@ export default function transactions({ data }: Props) {
     Date: new Date().toLocaleString(),
   }));
 
-  return <DataTable header="Transactions" rows={mockRows} columns={columns} />;
+  return (
+    <DataTable header="Transactions" rowData={mockRows} columns={columns} />
+  );
 }
