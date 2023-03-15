@@ -1,4 +1,4 @@
-import { Box, Toolbar } from "@mui/material";
+import { Box, Toolbar, Container } from "@mui/material";
 import Sidebar from "./Sidebar";
 import { useState } from "react";
 import Topbar from "./Topbar";
@@ -23,7 +23,7 @@ export default function Layout({ children }: Props) {
       </header>
       <main>
         <Toolbar />
-        {children}
+        <Container maxWidth={"xl"}>{children}</Container>
       </main>
     </Box>
   );

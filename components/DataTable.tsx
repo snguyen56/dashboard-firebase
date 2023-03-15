@@ -16,7 +16,7 @@ import {
   GridActionsCellItem,
   GridSelectionModel,
 } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import {
   collection,
@@ -45,9 +45,21 @@ export default function DataTable({ header, rowData, columns }: Props) {
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [severity, setSeverity] = useState<AlertColor>("warning");
   const [message, setMessage] = useState<string>("");
+  const [minWidth, setminWidth] = useState<number>(0);
 
   const router = useRouter();
   console.log(router.pathname);
+
+  const headerRef = useRef<HTMLHeadingElement>(null);
+  const buttonsRef = useRef<HTMLBodyElement>(null);
+
+  useEffect(() => {
+    if (headerRef.current && buttonsRef.current) {
+      setminWidth(
+        headerRef.current.offsetWidth + buttonsRef.current.offsetWidth + 10
+      );
+    }
+  }, [headerRef.current, buttonsRef.current]);
 
   useEffect(() => {
     setRows(rowData);
@@ -129,12 +141,12 @@ export default function DataTable({ header, rowData, columns }: Props) {
   };
 
   return (
-    <Container style={{ height: 550, minWidth: 550 }} maxWidth={"xl"}>
+    <Box style={{ height: 550, minWidth: minWidth }}>
       <Stack direction="row" justifyContent="space-between">
-        <Typography variant="h4" component="h1" pb={2}>
+        <Typography variant="h4" component="h1" pb={2} ref={headerRef}>
           {header}
         </Typography>
-        <Box>
+        <Box ref={buttonsRef}>
           <Button
             variant="contained"
             disabled={selectedRows.length > 0 ? false : true}
@@ -175,6 +187,6 @@ export default function DataTable({ header, rowData, columns }: Props) {
         message={message}
         handleClose={handleClose}
       />
-    </Container>
+    </Box>
   );
 }
