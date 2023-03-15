@@ -7,11 +7,13 @@ import {
   Divider,
   Stack,
   Chip,
+  ChipProps,
   Slider,
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useThemeContext } from "@/context/ThemeContext";
 import { useState } from "react";
+import { styled } from "@mui/system";
 
 export default function SettingsMenu() {
   const {
@@ -40,6 +42,33 @@ export default function SettingsMenu() {
       setBorderRadius(newValue);
     }
   };
+
+  const ColorChip = styled(({ label, rgb }: ChipProps & { rgb: string }) => (
+    <Chip
+      label={label}
+      variant="outlined"
+      onClick={() => setPrimaryColor(rgb)}
+      avatar={<Avatar sx={{ bgcolor: rgb }}>P</Avatar>}
+      sx={{
+        border:
+          primaryColor === rgb
+            ? `2px solid ${primaryColor}`
+            : "1px solid #616161",
+      }}
+    />
+  ))(({ theme }) => ({}));
+
+  const FontChip = styled(({ label, font }: ChipProps & { font: number }) => (
+    <Chip
+      label={label}
+      variant="outlined"
+      onClick={() => setFontSize(font)}
+      sx={{
+        border:
+          fontSize === font ? `2px solid ${primaryColor}` : "1px solid #616161",
+      }}
+    />
+  ))(({ theme }) => ({}));
 
   return (
     <>
@@ -72,79 +101,16 @@ export default function SettingsMenu() {
       >
         <Typography sx={{ padding: "6px 16px" }}>Theme Color</Typography>
         <Stack direction={"row"} spacing={1} px={1}>
-          <Chip
-            label="Purple"
-            variant="outlined"
-            onClick={() => setPrimaryColor("#673ab7")}
-            avatar={<Avatar sx={{ bgcolor: "#673ab7" }}>P</Avatar>}
-            sx={{
-              border:
-                primaryColor === "#673ab7"
-                  ? `2px solid ${primaryColor}`
-                  : "1px solid #616161",
-            }}
-          />
-          <Chip
-            label="Green"
-            variant="outlined"
-            onClick={() => setPrimaryColor("#4caf50")}
-            avatar={<Avatar sx={{ bgcolor: "#4caf50" }}>G</Avatar>}
-            sx={{
-              border:
-                primaryColor === "#4caf50"
-                  ? `2px solid ${primaryColor}`
-                  : "1px solid #616161",
-            }}
-          />
-          <Chip
-            label="Blue"
-            variant="outlined"
-            onClick={() => setPrimaryColor("#2196f3")}
-            avatar={<Avatar sx={{ bgcolor: "#2196f3" }}>B</Avatar>}
-            sx={{
-              border:
-                primaryColor === "#2196f3"
-                  ? `2px solid ${primaryColor}`
-                  : "1px solid #616161",
-            }}
-          />
+          <ColorChip label="Purple" rgb="#673ab7" />
+          <ColorChip label="Green" rgb="#4caf50" />
+          <ColorChip label="Blue" rgb="#2196f3" />
         </Stack>
         <Divider sx={{ margin: "8px 0" }} />
         <Typography sx={{ padding: "6px 16px" }}>Font Size</Typography>
         <Stack direction="row" justifyContent="center" spacing={1} px={1}>
-          <Chip
-            label="Small"
-            variant="outlined"
-            onClick={() => setFontSize(12)}
-            sx={{
-              border:
-                fontSize === 12
-                  ? `2px solid ${primaryColor}`
-                  : "1px solid #616161",
-            }}
-          />
-          <Chip
-            label="Medium"
-            variant="outlined"
-            onClick={() => setFontSize(14)}
-            sx={{
-              border:
-                fontSize === 14
-                  ? `2px solid ${primaryColor}`
-                  : "1px solid #616161",
-            }}
-          />
-          <Chip
-            label="Large"
-            variant="outlined"
-            onClick={() => setFontSize(16)}
-            sx={{
-              border:
-                fontSize === 16
-                  ? `2px solid ${primaryColor}`
-                  : "1px solid #616161",
-            }}
-          />
+          <FontChip label="Small" font={12} />
+          <FontChip label="Medium" font={14} />
+          <FontChip label="Large" font={16} />
         </Stack>
         <Divider sx={{ margin: "8px 0" }} />
         <Typography sx={{ padding: "6px 16px" }}>Border Radius</Typography>

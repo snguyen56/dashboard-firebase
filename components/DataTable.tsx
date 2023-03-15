@@ -25,10 +25,14 @@ import {
   where,
   onSnapshot,
   deleteDoc,
+  updateDoc,
   doc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebaseConfig";
-
+import PopupAlert from "@/components/PopupAlert";
+import { AlertColor } from "@mui/material/Alert";
+import { useRouter } from "next/router";
+import Link from "next/link";
 type Props = {
   header: string;
   rowData: GridRowsProp;
@@ -38,6 +42,12 @@ type Props = {
 export default function DataTable({ header, rowData, columns }: Props) {
   const [rows, setRows] = useState<any>([]);
   const [selectedRows, setSelectedRows] = useState<GridSelectionModel>([]);
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [severity, setSeverity] = useState<AlertColor>("warning");
+  const [message, setMessage] = useState<string>("");
+
+  const router = useRouter();
+  console.log(router.pathname);
 
   useEffect(() => {
     setRows(rowData);
@@ -88,13 +98,35 @@ export default function DataTable({ header, rowData, columns }: Props) {
 
   //update functions
   function processRowUpdated(newRow: GridRowModel, oldRow: GridRowModel) {
-    console.log(newRow);
+    if (JSON.stringify(newRow) === JSON.stringify(oldRow)) {
+      return oldRow;
+    }
+    const { id, ...props } = newRow;
+    // updateDoc(doc(db, header.toLowerCase(), newRow.id), { ...props });
+    handleOpen("success", `${header} updated successfully`);
     return newRow;
   }
 
   function onRowUpdateError(error: Error) {
     console.log(error);
   }
+
+  //snackbar functions
+  function handleOpen(severity: AlertColor, message: string) {
+    setOpenSnackbar(true);
+    setSeverity(severity);
+    setMessage(message);
+  }
+
+  const handleClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
 
   return (
     <Container style={{ height: 550, minWidth: 550 }} maxWidth={"xl"}>
@@ -111,7 +143,12 @@ export default function DataTable({ header, rowData, columns }: Props) {
           >
             Delete {header}
           </Button>
-          <Button variant="contained">Add {header}</Button>
+          <Button
+            variant="contained"
+            onClick={() => router.push(router.pathname + "/create")}
+          >
+            Add {header}
+          </Button>
         </Box>
       </Stack>
       <Paper sx={{ height: "inherit", width: "100%" }}>
@@ -132,6 +169,12 @@ export default function DataTable({ header, rowData, columns }: Props) {
         />
         <Typography variant="subtitle2">*Double click row to edit</Typography>
       </Paper>
+      <PopupAlert
+        open={openSnackbar}
+        severity={severity}
+        message={message}
+        handleClose={handleClose}
+      />
     </Container>
   );
 }

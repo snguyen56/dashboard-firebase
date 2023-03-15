@@ -1,13 +1,9 @@
 import Form from "@/components/Form";
-import {
-  TextField,
-  Snackbar,
-  Autocomplete,
-  InputAdornment,
-} from "@mui/material";
+import { TextField, Autocomplete, InputAdornment } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { useState, forwardRef } from "react";
-import MuiAlert, { AlertColor, AlertProps } from "@mui/material/Alert";
+import { useState } from "react";
+import { AlertColor } from "@mui/material/Alert";
+import PopupAlert from "@/components/PopupAlert";
 
 type Inputs = {
   product: string;
@@ -22,13 +18,6 @@ export default function create() {
   const [message, setMessage] = useState<any | string>();
 
   const options: any[] = [];
-
-  const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
-    props,
-    ref
-  ) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-  });
 
   const {
     register,
@@ -109,16 +98,12 @@ export default function create() {
           />
         )}
       />
-      <Snackbar
+      <PopupAlert
         open={open}
-        autoHideDuration={5000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
-          {message}
-        </Alert>
-      </Snackbar>
+        handleClose={handleClose}
+        severity={severity}
+        message={message}
+      />
     </Form>
   );
 }
