@@ -12,12 +12,19 @@ export const validateString = (params: GridPreProcessEditCellProps) => {
 };
 
 export const validateCurrency = (params: GridPreProcessEditCellProps) => {
-  const hasError = params.props.value <= 0;
+  const hasError = params.props.value <= 0 || params.props.value === null;
   return { ...params.props, error: hasError };
 };
 
 export const validateNumber = (params: GridPreProcessEditCellProps) => {
-  const hasError = params.props.value < 0;
+  const hasError = params.props.value < 0 || params.props.value === null;
+  return { ...params.props, error: hasError };
+};
+
+export const validateEmail = (params: GridPreProcessEditCellProps) => {
+  const hasError = !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(
+    params.props.value
+  );
   return { ...params.props, error: hasError };
 };
 
@@ -49,5 +56,9 @@ export function handleCurrencyError(props: GridRenderEditCellParams) {
 }
 
 export function handleNumberError(props: GridRenderEditCellParams) {
-  return tooltipMessage(props, "Input must be a positive number");
+  return tooltipMessage(props, "Input must be a non-negative number");
+}
+
+export function handleEmailError(props: GridRenderEditCellParams) {
+  return tooltipMessage(props, "Input must be in Email format");
 }

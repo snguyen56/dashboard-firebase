@@ -1,11 +1,4 @@
-import {
-  Container,
-  Typography,
-  Paper,
-  Stack,
-  Button,
-  Box,
-} from "@mui/material";
+import { Typography, Paper, Stack, Button, Box } from "@mui/material";
 import {
   DataGrid,
   GridRowsProp,
@@ -15,9 +8,17 @@ import {
   GridRowModel,
   GridActionsCellItem,
   GridSelectionModel,
+  GridRowModesModel,
+  GridRowId,
+  GridEventListener,
+  GridRowParams,
+  MuiEvent,
 } from "@mui/x-data-grid";
 import { useEffect, useRef, useState } from "react";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Close";
 import {
   collection,
   getDocs,
@@ -32,7 +33,7 @@ import { db } from "@/lib/firebaseConfig";
 import PopupAlert from "@/components/PopupAlert";
 import { AlertColor } from "@mui/material/Alert";
 import { useRouter } from "next/router";
-import Link from "next/link";
+
 type Props = {
   header: string;
   rowData: GridRowsProp;
@@ -46,6 +47,7 @@ export default function DataTable({ header, rowData, columns }: Props) {
   const [severity, setSeverity] = useState<AlertColor>("warning");
   const [message, setMessage] = useState<string>("");
   const [minWidth, setminWidth] = useState<number>(0);
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
   const router = useRouter();
   console.log(router.pathname);
@@ -71,13 +73,41 @@ export default function DataTable({ header, rowData, columns }: Props) {
       field: "actions",
       type: "actions",
       headerName: "Actions",
-      getActions: ({ id }: any) => [
-        <GridActionsCellItem
-          icon={<DeleteIcon />}
-          label="Delete"
-          onClick={() => handleDelete(id)}
-        />,
-      ],
+      getActions: ({ id }: any) => {
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+
+        if (isInEditMode) {
+          return [
+            <GridActionsCellItem
+              icon={<SaveIcon />}
+              label="Save"
+              onClick={handleSave(id)}
+            />,
+            <GridActionsCellItem
+              icon={<CancelIcon />}
+              label="Cancel"
+              className="textPrimary"
+              onClick={handleCancel(id)}
+              color="inherit"
+            />,
+          ];
+        }
+
+        return [
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={handleEdit(id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={() => handleDelete(id)}
+          />,
+        ];
+      },
     },
   ];
 
@@ -115,7 +145,7 @@ export default function DataTable({ header, rowData, columns }: Props) {
     }
     const { id, ...props } = newRow;
     // updateDoc(doc(db, header.toLowerCase(), newRow.id), { ...props });
-    handleOpen("success", `${header} updated successfully`);
+    handleOpen("success", `${header.slice(0, -1)} updated successfully`);
     return newRow;
   }
 
@@ -138,6 +168,36 @@ export default function DataTable({ header, rowData, columns }: Props) {
       return;
     }
     setOpenSnackbar(false);
+  };
+
+  //icon functions
+  const handleRowEditStart = (
+    params: GridRowParams,
+    event: MuiEvent<React.SyntheticEvent>
+  ) => {
+    event.defaultMuiPrevented = true;
+  };
+
+  const handleRowEditStop: GridEventListener<"rowEditStop"> = (
+    params,
+    event
+  ) => {
+    event.defaultMuiPrevented = true;
+  };
+
+  const handleEdit = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
+
+  const handleSave = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  };
+
+  const handleCancel = (id: GridRowId) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: GridRowModes.View, ignoreModifications: true },
+    });
   };
 
   return (
@@ -174,12 +234,14 @@ export default function DataTable({ header, rowData, columns }: Props) {
           onSelectionModelChange={onRowSelectionModelChange}
           selectionModel={selectedRows}
           editMode="row"
-          // rowModesModel={{ 1: { mode: GridRowModes.Edit } }}
           experimentalFeatures={{ newEditingApi: true }}
           processRowUpdate={processRowUpdated}
           onProcessRowUpdateError={onRowUpdateError}
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+          onRowEditStart={handleRowEditStart}
+          onRowEditStop={handleRowEditStop}
         />
-        <Typography variant="subtitle2">*Double click row to edit</Typography>
       </Paper>
       <PopupAlert
         open={openSnackbar}

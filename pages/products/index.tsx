@@ -66,9 +66,6 @@ export default function products({ data }: Props) {
       type: "number",
       flex: 0.75,
       minWidth: 75,
-      valueParser: (value: any) => {
-        return value.trim();
-      },
       valueFormatter: (params) => {
         return currencyFormatter(params.value);
       },
