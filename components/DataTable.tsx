@@ -28,6 +28,7 @@ import {
   deleteDoc,
   updateDoc,
   doc,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebaseConfig";
 import PopupAlert from "@/components/PopupAlert";
@@ -42,6 +43,7 @@ type Props = {
 
 export default function DataTable({ header, rowData, columns }: Props) {
   const [rows, setRows] = useState<any>([]);
+  const [pageSize, setPageSize] = useState<number>(25);
   const [selectedRows, setSelectedRows] = useState<GridSelectionModel>([]);
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [severity, setSeverity] = useState<AlertColor>("warning");
@@ -50,7 +52,6 @@ export default function DataTable({ header, rowData, columns }: Props) {
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
   const router = useRouter();
-  console.log(router.pathname);
 
   const headerRef = useRef<HTMLHeadingElement>(null);
   const buttonsRef = useRef<HTMLBodyElement>(null);
@@ -113,8 +114,8 @@ export default function DataTable({ header, rowData, columns }: Props) {
 
   //delete functions
   function handleDelete(id: any) {
-    setRows((rows: any) => rows.filter((row: any) => row.id !== id));
-    // deleteDoc(doc(db, "products", id));
+    // setRows((rows: any) => rows.filter((row: any) => row.id !== id));
+    deleteDoc(doc(db, header.toLowerCase(), id));
   }
 
   function handleDeleteMultiple() {
@@ -125,11 +126,16 @@ export default function DataTable({ header, rowData, columns }: Props) {
     //   }
     // });
 
-    setRows((rows: any) =>
-      rows.filter((row: any) => {
-        return !selectedRows.includes(row.id);
-      })
-    );
+    selectedRows.forEach((row: any) => {
+      console.log(row);
+      deleteDoc(doc(db, header.toLowerCase(), row));
+    });
+
+    // setRows((rows: any) =>
+    //   rows.filter((row: any) => {
+    //     return !selectedRows.includes(row.id);
+    //   })
+    // );
   }
 
   //checkbox function
@@ -141,10 +147,12 @@ export default function DataTable({ header, rowData, columns }: Props) {
   //update functions
   function processRowUpdated(newRow: GridRowModel, oldRow: GridRowModel) {
     if (JSON.stringify(newRow) === JSON.stringify(oldRow)) {
+      console.log(oldRow, newRow);
       return oldRow;
     }
     const { id, ...props } = newRow;
-    // updateDoc(doc(db, header.toLowerCase(), newRow.id), { ...props });
+    console.log({ ...props });
+    updateDoc(doc(db, header.toLowerCase(), id), { ...props });
     handleOpen("success", `${header.slice(0, -1)} updated successfully`);
     return newRow;
   }
@@ -159,16 +167,6 @@ export default function DataTable({ header, rowData, columns }: Props) {
     setSeverity(severity);
     setMessage(message);
   }
-
-  const handleClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenSnackbar(false);
-  };
 
   //icon functions
   const handleRowEditStart = (
@@ -227,7 +225,9 @@ export default function DataTable({ header, rowData, columns }: Props) {
         <DataGrid
           rows={rows}
           columns={actionColumn}
-          pageSize={rowData.length < 25 ? rowData.length : 25}
+          pageSize={pageSize}
+          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+          rowsPerPageOptions={[5, 10, 25, 50]}
           components={{ Toolbar: GridToolbar }}
           checkboxSelection
           disableSelectionOnClick
@@ -247,7 +247,7 @@ export default function DataTable({ header, rowData, columns }: Props) {
         open={openSnackbar}
         severity={severity}
         message={message}
-        handleClose={handleClose}
+        setOpen={setOpenSnackbar}
       />
     </Box>
   );

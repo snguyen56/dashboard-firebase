@@ -2,6 +2,7 @@ import { styled } from "@mui/material/styles";
 import { Tooltip, tooltipClasses, TooltipProps } from "@mui/material";
 import {
   GridEditInputCell,
+  GridEditDateCell,
   GridPreProcessEditCellProps,
   GridRenderEditCellParams,
 } from "@mui/x-data-grid";
@@ -25,6 +26,11 @@ export const validateEmail = (params: GridPreProcessEditCellProps) => {
   const hasError = !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(
     params.props.value
   );
+  return { ...params.props, error: hasError };
+};
+
+export const validateDate = (params: GridPreProcessEditCellProps) => {
+  const hasError = params.props.value === null;
   return { ...params.props, error: hasError };
 };
 
@@ -61,4 +67,14 @@ export function handleNumberError(props: GridRenderEditCellParams) {
 
 export function handleEmailError(props: GridRenderEditCellParams) {
   return tooltipMessage(props, "Input must be in Email format");
+}
+
+export function handleDateError(props: GridRenderEditCellParams) {
+  return (
+    <ErrorTooltip title={"Date and time cannot be empty"} open={props.error}>
+      <div>
+        <GridEditDateCell {...props} />
+      </div>
+    </ErrorTooltip>
+  );
 }

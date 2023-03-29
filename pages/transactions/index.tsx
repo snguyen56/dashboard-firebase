@@ -4,12 +4,24 @@ import { currencyFormatter } from "@/lib/numberFormatter";
 import { GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import {
   handleCurrencyError,
+  handleDateError,
   handleNumberError,
   handleStringError,
   validateCurrency,
+  validateDate,
   validateNumber,
   validateString,
 } from "@/lib/rowValidation";
+import {
+  collection,
+  onSnapshot,
+  query,
+  Timestamp,
+  where,
+} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { db } from "@/lib/firebaseConfig";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const res = await fetch("https://dummyjson.com/carts?limit=20");
@@ -23,25 +35,55 @@ type Props = {
 };
 
 export default function transactions({ data }: Props) {
+  const [rows, setRows] = useState<any[]>([]);
+
+  const { user } = useAuth();
+  const col = collection(db, "transactions");
+  const q = query(col, where("userId", "==", user?.uid));
+
   const columns: GridColDef[] = [
     {
-      field: "UserID",
+      field: "customer",
       flex: 0.5,
       minWidth: 75,
+      valueParser: (value: any) => {
+        return value.trim();
+      },
+      valueGetter: (params) => {
+        return params.row.customer.label;
+      },
+      valueSetter: (params) => {
+        return {
+          ...params.row,
+          customer: { ...params.row.customer, label: params.value },
+        };
+      },
       preProcessEditCellProps: validateString,
       renderEditCell: handleStringError,
       editable: true,
     },
     {
-      field: "Product",
+      field: "product",
       flex: 1,
       minWidth: 125,
+      valueParser: (value: any) => {
+        return value.trim();
+      },
+      valueGetter: (params) => {
+        return params.row.product.label;
+      },
+      valueSetter: (params) => {
+        return {
+          ...params.row,
+          product: { ...params.row.product, label: params.value },
+        };
+      },
       preProcessEditCellProps: validateString,
       renderEditCell: handleStringError,
       editable: true,
     },
     {
-      field: "Quantity",
+      field: "quantity",
       type: "number",
       flex: 0.5,
       minWidth: 125,
@@ -50,7 +92,7 @@ export default function transactions({ data }: Props) {
       editable: true,
     },
     {
-      field: "Cost",
+      field: "cost",
       type: "number",
       flex: 0.5,
       minWidth: 75,
@@ -64,7 +106,14 @@ export default function transactions({ data }: Props) {
       renderEditCell: handleCurrencyError,
       editable: true,
     },
-    { field: "Date", type: "dateTime", flex: 1, editable: true },
+    {
+      field: "date",
+      type: "dateTime",
+      flex: 1,
+      preProcessEditCellProps: validateDate,
+      renderEditCell: handleDateError,
+      editable: true,
+    },
   ];
 
   const mockRows: GridRowsProp = data.map((item: any) => ({
@@ -73,10 +122,24 @@ export default function transactions({ data }: Props) {
     Quantity: item.totalQuantity,
     Product: item.products[0].title,
     Cost: item.total,
-    Date: new Date(),
+    Date: Timestamp.fromDate(new Date()).toDate(),
   }));
 
-  return (
-    <DataTable header="Transactions" rowData={mockRows} columns={columns} />
-  );
+  useEffect(() => {
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setRows(
+        snapshot.docs.map((doc) => {
+          return {
+            ...doc.data(),
+            date: doc.data().date.toDate(),
+            id: doc.id,
+          };
+        })
+      );
+    });
+
+    return unsubscribe;
+  }, []);
+
+  return <DataTable header="Transactions" rowData={rows} columns={columns} />;
 }

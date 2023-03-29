@@ -48,7 +48,7 @@ export default function SettingsMenu() {
       label={label}
       variant="outlined"
       onClick={() => setPrimaryColor(rgb)}
-      avatar={<Avatar sx={{ bgcolor: rgb }}>P</Avatar>}
+      avatar={<Avatar sx={{ bgcolor: rgb }}></Avatar>}
       sx={{
         border:
           primaryColor === rgb

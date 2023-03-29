@@ -4,16 +4,16 @@ import React, { forwardRef } from "react";
 
 type Props = {
   open: boolean;
-  handleClose: (event: React.SyntheticEvent | Event, reason?: string) => void;
   severity: AlertColor;
   message: string;
+  setOpen(value: boolean): void;
 };
 
 export default function PopupAlert({
   open,
-  handleClose,
   severity,
   message,
+  setOpen,
 }: Props) {
   const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -21,6 +21,17 @@ export default function PopupAlert({
   ) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
+
+  const handleClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
 
   return (
     <Snackbar

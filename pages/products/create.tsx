@@ -3,10 +3,12 @@ import { TextField, InputAdornment } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { AlertColor } from "@mui/material/Alert";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebaseConfig";
 import { useAuth } from "@/context/AuthContext";
 import PopupAlert from "@/components/PopupAlert";
+import useReset from "@/hooks/useReset";
+
 type Inputs = {
   name: string;
   price: number;
@@ -26,7 +28,8 @@ export default function create() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    reset,
+    formState: { errors, isSubmitSuccessful },
   } = useForm<Inputs>();
 
   const onSubmit = async (data: Inputs) => {
@@ -34,45 +37,34 @@ export default function create() {
     setSeverity("success");
     setMessage("Product created successfully");
     await addDoc(collection(db, "products"), {
-      name: data.name,
-      price: data.price,
-      cost: data.cost,
-      stock: data.stock,
-      category: data.category,
-      supplier: data.supplier,
+      ...data,
       userId: user?.uid,
+      createdAt: serverTimestamp(),
     });
+    console.log({ ...data, userId: user?.uid });
   };
 
   function onError(data: object) {
     setOpen(true);
     setSeverity("error");
     setMessage("Error creating product");
+    console.log(data);
   }
 
-  const handleClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpen(false);
-  };
+  useReset(reset, isSubmitSuccessful);
 
   return (
-    <Form handleSubmit={handleSubmit(onSubmit, onError)}>
+    <Form header="Product" handleSubmit={handleSubmit(onSubmit, onError)}>
       <TextField
         type="text"
-        placeholder="Name"
+        label="Name"
         {...register("name", { required: "Name is required" })}
         error={!!errors.name}
         helperText={errors.name?.message}
       />
       <TextField
         type="number"
-        placeholder="Sales Price"
+        label="Sales Price"
         InputProps={{
           startAdornment: <InputAdornment position="start">$</InputAdornment>,
         }}
@@ -86,7 +78,7 @@ export default function create() {
       />
       <TextField
         type="number"
-        placeholder="Unit Cost"
+        label="Unit Cost"
         InputProps={{
           startAdornment: <InputAdornment position="start">$</InputAdornment>,
         }}
@@ -100,7 +92,7 @@ export default function create() {
       />
       <TextField
         type="number"
-        placeholder="Stock"
+        label="Stock"
         defaultValue={0}
         {...register("stock", {
           required: "Stock is required",
@@ -112,21 +104,21 @@ export default function create() {
       />
       <TextField
         type="text"
-        placeholder="Category"
+        label="Category"
         {...register("category", { required: "Category is required" })}
         error={!!errors.category}
         helperText={errors.category?.message}
       />
       <TextField
         type="text"
-        placeholder="Supplier"
+        label="Supplier"
         {...register("supplier", { required: "Supplier is required" })}
         error={!!errors.supplier}
         helperText={errors.supplier?.message}
       />
       <PopupAlert
         open={open}
-        handleClose={handleClose}
+        setOpen={setOpen}
         severity={severity}
         message={message}
       />
